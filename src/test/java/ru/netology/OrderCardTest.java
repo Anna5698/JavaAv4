@@ -8,7 +8,7 @@ import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderCardTest {
     private WebDriver driver;
@@ -42,15 +42,10 @@ public class OrderCardTest {
     void shouldSubmitValidForm() {
         driver.get("http://localhost:9999");
 
-        // Даем время на загрузку страницы
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Заполняем поле имени
-        WebElement nameField = driver.findElement(By.cssSelector("[data-test-id='name'] input"));
+        // Заполняем поле имени (ожидаем появления элемента)
+        WebElement nameField = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test-id='name'] input"))
+        );
         nameField.sendKeys("Иван Петров");
 
         // Заполняем поле телефона
@@ -65,23 +60,20 @@ public class OrderCardTest {
         WebElement submitButton = driver.findElement(By.cssSelector("button"));
         submitButton.click();
 
-        // Ждем успешного сообщения - пробуем разные варианты селекторов
-        try {
-            // Вариант 1: проверяем по селектору
-            WebElement successElement = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(
-                            By.cssSelector("[data-test-id='order-success'], [data-test-id='success-notification'], .notification_status_ok, .notification__content")
-                    ));
+        // Ждем успешного сообщения с использованием явного ожидания
+        // Используем data-test-id='order-success' согласно тестовой метке
+        WebElement successElement = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test-id='order-success']"))
+        );
 
-            String text = successElement.getText();
-            System.out.println("Найденный текст: " + text);
-            assertTrue(text.contains("отправлена") || text.contains("успешно") || text.contains("заявка"));
+        // Проверяем видимость элемента и текст
+        assertTrue(successElement.isDisplayed(), "Сообщение об успехе должно быть видимым");
 
-        } catch (TimeoutException e) {
-            // Если не нашли по селектору, попробуем найти по тексту на странице
-            String pageSource = driver.getPageSource();
-            System.out.println("Содержимое страницы: " + pageSource);
-            assertTrue(pageSource.contains("отправлена") || pageSource.contains("успешно"));
-        }
+        // Получаем текст из элемента успеха
+        String actualText = successElement.getText().trim();
+
+        // Проверяем, что текст содержит ключевые слова
+        assertTrue(actualText.contains("успешно") || actualText.contains("отправлена"),
+                "Текст должен содержать 'успешно' или 'отправлена'");
     }
 }
