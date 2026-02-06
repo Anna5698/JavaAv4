@@ -67,8 +67,6 @@ public class OrderCardTest {
 
         // Получаем текст из элемента успеха
         String actualText = successElement.getText().trim();
-
-        // Проверяем точное совпадение текста как на лекции
         assertEquals("Ваша заявка успешно отправлена!", actualText);
     }
 }
