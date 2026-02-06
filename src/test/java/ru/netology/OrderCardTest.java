@@ -61,19 +61,14 @@ public class OrderCardTest {
         submitButton.click();
 
         // Ждем успешного сообщения с использованием явного ожидания
-        // Используем data-test-id='order-success' согласно тестовой метке
         WebElement successElement = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test-id='order-success']"))
         );
 
-        // Проверяем видимость элемента и текст
-        assertTrue(successElement.isDisplayed(), "Сообщение об успехе должно быть видимым");
-
         // Получаем текст из элемента успеха
         String actualText = successElement.getText().trim();
 
-        // Проверяем, что текст содержит ключевые слова
-        assertTrue(actualText.contains("успешно") || actualText.contains("отправлена"),
-                "Текст должен содержать 'Ваша заявка успешно отправлена'");
+        // Проверяем точное совпадение текста как на лекции
+        assertEquals("Ваша заявка успешно отправлена!", actualText);
     }
 }
